@@ -1,0 +1,149 @@
+// components/main/SingupLogin.jsx
+import React, { useState } from "react";
+import api from "../../api/api"; // Importa o objeto api
+
+function Login() {
+  const [formData, setFormData] = useState({
+    nome: "",
+    senha: "",
+    tipo: "",
+  });
+
+  const handleChange = (event) => {
+    const { id, value } = event.target;
+    setFormData((prevData) => ({
+      ...prevData,
+      [id]: value,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const { nome, senha, tipo } = formData;
+
+    // Validar campos obrigatórios
+    if (!nome || !senha || !tipo) {
+      alert("Por favor, preencha todos os campos.");
+      return;
+    }
+
+    try {
+      // Enviar os dados de login para o backend usando o objeto api
+      const response = await api.post("/auth/login", {
+        nome,
+        senha,
+        tipo,
+      });
+
+      if (response.status === 200) {
+        const { token, userId, role } = response.data;
+  
+        localStorage.setItem("token", token);
+        localStorage.setItem("userId", userId);
+        localStorage.setItem("role", role); 
+  
+        api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
+  
+        alert("Login realizado com sucesso!");
+
+        // Redirecionar baseado no tipo de usuário
+        if (role === "Aluno") {
+          window.location.href = "/alunocursos/home";
+        } else if (role === "Professor") {
+          window.location.href = "/professorcursos/home";
+        } else if (role === "Admin") {
+          window.location.href = "/adminCursos/home";
+        }
+      }
+    } catch (error) {
+      console.error(
+        "Erro ao fazer login:",
+        error.response?.data?.message || error.message
+      );
+      alert(
+        `Erro ao fazer login: ${error.response?.data?.message || error.message}`
+      );
+    }
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <div className="container col-xl-10 col-xxl-8 px-4 py-5">
+        <div className="row align-items-center g-lg-5 py-5">
+          <div className="col-10 col-sm-8 col-lg-6">
+            <img
+              src="https://i.postimg.cc/Y9WBqnkF/Sign-Up-Login.png"
+              alt="loginimg"
+              className="rounded shadow"
+              style={{
+                maxWidth: "100%",
+                height: "auto",
+                borderRadius: "8px",
+                marginLeft: "20px",
+                marginBottom: "30px",
+              }}
+            />
+          </div>
+          <div className="col-md-10 mx-auto col-lg-5">
+            <div className="p-4 p-md-5 border rounded-3 bg-body-tertiary">
+              {/* Campo Nome */}
+              <div className="form-floating mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="nome"
+                  placeholder="Nome de usuário*"
+                  value={formData.nome}
+                  onChange={handleChange}
+                  required
+                />
+                <label htmlFor="nome">Nome de usuário</label>
+              </div>
+
+              {/* Campo Senha */}
+              <div className="form-floating mb-3">
+                <input
+                  type="password"
+                  className="form-control"
+                  id="senha"
+                  placeholder="Senha*"
+                  value={formData.senha}
+                  onChange={handleChange}
+                  required
+                />
+                <label htmlFor="senha">Senha</label>
+              </div>
+
+              {/* Campo Tipo de Usuário */}
+              <div className="mb-3">
+                <label htmlFor="tipo" className="form-label">
+                  Acessar como:
+                </label>
+                <select
+                  id="tipo"
+                  className="form-select"
+                  onChange={handleChange}
+                  value={formData.tipo}
+                  required
+                >
+                  <option value="">...</option>
+                  <option value="Aluno">Aluno</option>
+                  <option value="Professor">Professor</option>
+                  <option value="Admin">Administrador</option>
+                </select>
+              </div>
+
+              {/* Botão de Login */}
+              <button className="w-100 btn btn-lg btn-primary" type="submit">
+                Login
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  );
+}
+
+export default Login;
