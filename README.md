@@ -72,7 +72,3 @@ Ferramentas de Desenvolvimento
 - **Upload de Arquivos** - Para materiais didáticos
 - **Busca e Filtros** - Para catálogo de cursos
 - **Notificações** - Sistema de alertas para usuários
-
----
-
-**Plataforma Educacional** - Transformando a educação através da tecnologia digital 📚✨
